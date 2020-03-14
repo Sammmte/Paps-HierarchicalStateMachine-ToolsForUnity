@@ -13,22 +13,57 @@ MonoBehaviour:
   m_Name: MyBuilder
   m_EditorClassIdentifier: 
   _states:
-  - _serializedStateId: xoxo
+  - _serializedStateId: uno
     _stateObject: {fileID: 0}
     _stateIdTypeFullName: System.String
-  - _serializedStateId: hola
+  - _serializedStateId: dos
     _stateObject: {fileID: 0}
     _stateIdTypeFullName: System.String
-  _transitions: []
+  - _serializedStateId: tres
+    _stateObject: {fileID: 0}
+    _stateIdTypeFullName: System.String
+  - _serializedStateId: cuatro
+    _stateObject: {fileID: 0}
+    _stateIdTypeFullName: System.String
+  _transitions:
+  - _serializedStateFrom: uno
+    _serializedTrigger: dos
+    _serializedStateTo: cuatro
+    _stateIdTypeFullName: System.String
+    _triggerTypeFullName: System.String
+    _guardConditions: []
+  - _serializedStateFrom: uno
+    _serializedTrigger: uno
+    _serializedStateTo: uno
+    _stateIdTypeFullName: System.String
+    _triggerTypeFullName: System.String
+    _guardConditions: []
+  - _serializedStateFrom: uno
+    _serializedTrigger: tres
+    _serializedStateTo: dos
+    _stateIdTypeFullName: System.String
+    _triggerTypeFullName: System.String
+    _guardConditions: []
+  - _serializedStateFrom: uno
+    _serializedTrigger: cuatro
+    _serializedStateTo: tres
+    _stateIdTypeFullName: System.String
+    _triggerTypeFullName: System.String
+    _guardConditions: []
   _parentConnections:
-  - _serializedParentStateId: xoxo
-    _serializedInitialChildId: hola
+  - _serializedParentStateId: uno
+    _serializedInitialChildId: tres
     _serializedChildStateIds:
-    - hola
+    - tres
+    _stateIdTypeFullName: System.String
+  - _serializedParentStateId: dos
+    _serializedInitialChildId: cuatro
+    _serializedChildStateIds:
+    - cuatro
     _stateIdTypeFullName: System.String
   _stateIdTypeFullName: System.String
   _triggerTypeFullName: System.String
   _metadata:
   - Key: PLAIN_STATE_MACHINE_BUILDER_METADATA
-    Value: '{"StateNodesMetadata":[{"_position":{"x":325.0,"y":50.0},"_serializedStateId":"xoxo","_stateIdTypeFullName":"System.String"},{"_position":{"x":193.0,"y":322.0},"_serializedStateId":"hola","_stateIdTypeFullName":"System.String"}]}'
-  _serializedInitialStateId: xoxo
+    Value: '{"StateNodesMetadata":[{"_position":{"x":261.0,"y":141.0},"_serializedStateId":"uno","_stateIdTypeFullName":"System.String"},{"_position":{"x":585.0,"y":146.0},"_serializedStateId":"dos","_stateIdTypeFullName":"System.String"},{"_position":{"x":240.0,"y":560.0},"_serializedStateId":"tres","_stateIdTypeFullName":"System.String"},{"_position":{"x":621.0,"y":533.0},"_serializedStateId":"cuatro","_stateIdTypeFullName":"System.String"}]}'
+  _serializedInitialStateId: uno

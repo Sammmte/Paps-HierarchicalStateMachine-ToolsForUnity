@@ -427,6 +427,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 if(_transitions[i].Source == node || _transitions[i].Target == node)
                 {
                     RemoveTransition(_transitions[i]);
+                    i--;
                 }
             }
         }
@@ -440,6 +441,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 if(node == _parentConnections[i].Parent)
                 {
                     RemoveChildFromParent(_parentConnections[i].Child);
+                    i--;
                 }
             }
         }
