@@ -263,9 +263,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             _transitions.Clear();
         }
 
-        private PlainStateMachine<TState, TTrigger> Build<TState, TTrigger>()
+        private HierarchicalStateMachine<TState, TTrigger> Build<TState, TTrigger>()
         {
-            var stateMachine = new PlainStateMachine<TState, TTrigger>();
+            var stateMachine = new HierarchicalStateMachine<TState, TTrigger>();
 
             AddStates(stateMachine);
             AddTransitionsAndGuardConditions(stateMachine);
@@ -273,7 +273,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             return stateMachine;
         }
 
-        private void AddStates<TState, TTrigger>(PlainStateMachine<TState, TTrigger> stateMachine)
+        private void AddStates<TState, TTrigger>(HierarchicalStateMachine<TState, TTrigger> stateMachine)
         {
             if (_states.Count > 0)
             {
@@ -294,7 +294,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             }
         }
 
-        private void AddTransitionsAndGuardConditions<TState, TTrigger>(PlainStateMachine<TState, TTrigger> stateMachine)
+        private void AddTransitionsAndGuardConditions<TState, TTrigger>(HierarchicalStateMachine<TState, TTrigger> stateMachine)
         {
             if (_transitions.Count > 0)
             {

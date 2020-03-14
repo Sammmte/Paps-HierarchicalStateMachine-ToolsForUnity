@@ -12,9 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d4de061b7074f2429b5d709e5066ffc, type: 3}
   m_Name: MyBuilder
   m_EditorClassIdentifier: 
-  _states: []
-  _transitions: []
-  _stateIdTypeFullName: System.Int32
-  _triggerTypeFullName: System.Int32
-  _metadata: []
-  _serializedInitialStateId: 
+  _states:
+  - _serializedStateId: xoxo
+    _stateObject: {fileID: 0}
+    _stateIdTypeFullName: System.String
+  - _serializedStateId: xaxa
+    _stateObject: {fileID: 0}
+    _stateIdTypeFullName: System.String
+  _transitions:
+  - _serializedStateFrom: xaxa
+    _serializedTrigger: xexe
+    _serializedStateTo: xoxo
+    _stateIdTypeFullName: System.String
+    _triggerTypeFullName: System.String
+    _guardConditions: []
+  _stateIdTypeFullName: System.String
+  _triggerTypeFullName: System.String
+  _metadata:
+  - Key: PLAIN_STATE_MACHINE_BUILDER_METADATA
+    Value: '{"StateNodesMetadata":[{"_position":{"x":485.0,"y":94.0},"_serializedStateId":"xoxo","_stateIdTypeFullName":"System.String"},{"_position":{"x":405.0,"y":320.0},"_serializedStateId":"xaxa","_stateIdTypeFullName":"System.String"}]}'
+  _serializedInitialStateId: xaxa

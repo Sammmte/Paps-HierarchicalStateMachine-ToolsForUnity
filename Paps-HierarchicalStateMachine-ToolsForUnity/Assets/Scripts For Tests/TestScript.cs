@@ -11,7 +11,7 @@ namespace Tests
 
         public void Start()
         {
-            var stateMachine = (PlainStateMachine<string, string>)_stateMachineBuilder.Build();
+            var stateMachine = (HierarchicalStateMachine<string, string>)_stateMachineBuilder.Build();
 
             var states = stateMachine.GetStates();
 
@@ -19,28 +19,34 @@ namespace Tests
 
             Debug.Log("Initial State: " + stateMachine.InitialState);
 
-            foreach (var state in states)
+            if(states != null)
             {
-                Debug.Log(state);
+                foreach (var state in states)
+                {
+                    Debug.Log(state);
 
-                var eventHandlers = stateMachine.GetEventHandlersOf(state);
-                
-                if(eventHandlers != null)
-                    Debug.Log("State " + state + " contains " + eventHandlers.Length + " event handlers");
-            }
+                    var eventHandlers = stateMachine.GetEventHandlersOf(state);
 
-            var transitions = stateMachine.GetTransitions();
+                    if (eventHandlers != null)
+                        Debug.Log("State " + state + " contains " + eventHandlers.Length + " event handlers");
+                }
 
-            foreach (var transition in transitions)
-            {
-                Debug.Log("Transition: " + transition.StateFrom + " -> " + transition.Trigger + " -> " + transition.StateTo);
+                var transitions = stateMachine.GetTransitions();
 
-                var guardConditions = stateMachine.GetGuardConditionsOf(transition);
+                if(transitions != null)
+                {
+                    foreach (var transition in transitions)
+                    {
+                        Debug.Log("Transition: " + transition.StateFrom + " -> " + transition.Trigger + " -> " + transition.StateTo);
 
-                if(guardConditions != null)
-                    Debug.Log("Guard conditions count: " + guardConditions.Length);
-                else
-                    Debug.Log("Guard conditions count: " + 0);
+                        var guardConditions = stateMachine.GetGuardConditionsOf(transition);
+
+                        if (guardConditions != null)
+                            Debug.Log("Guard conditions count: " + guardConditions.Length);
+                        else
+                            Debug.Log("Guard conditions count: " + 0);
+                    }
+                }
             }
         }
     }
