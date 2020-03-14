@@ -407,10 +407,38 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             if (_nodes.Remove(node))
             {
+                RemoveTransitionsRelatedTo(node);
+                RemoveParentConnectionsRelatedTo(node);
+
                 if(IsSelected(node))
                     DeselectAll();
                 
                 RecordAndRebuild();
+            }
+        }
+
+        private void RemoveTransitionsRelatedTo(StateNode node)
+        {
+            for(int i = 0; i < _transitions.Count; i++)
+            {
+                if(HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _transitions[i].StateFrom) ||
+                    HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _transitions[i].StateTo))
+                {
+                    RemoveTransition(_transitions[i]);
+                }
+            }
+        }
+
+        private void RemoveParentConnectionsRelatedTo(StateNode node)
+        {
+            RemoveChildFromParent(node);
+
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                if(HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _parentConnections[i].Parent.StateId))
+                {
+                    RemoveChildFromParent(_parentConnections[i].Child);
+                }
             }
         }
 

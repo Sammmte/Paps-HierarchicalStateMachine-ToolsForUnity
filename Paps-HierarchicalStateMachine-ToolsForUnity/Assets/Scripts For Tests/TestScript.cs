@@ -36,6 +36,8 @@ namespace Tests
                     {
                         foreach (var child in childs)
                             Debug.Log("Child state: " + child);
+
+                        Debug.Log("Initial Child: " + stateMachine.GetInitialStateOf(state));
                     }
                 }
 
