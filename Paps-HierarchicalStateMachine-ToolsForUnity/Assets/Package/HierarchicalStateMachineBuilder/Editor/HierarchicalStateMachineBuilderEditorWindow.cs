@@ -222,7 +222,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 {
                     var current = _transitions[i];
 
-                    current.Draw(IsSelected(current));
+                    current.Draw();
                 }
             }
         }
@@ -501,6 +501,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             if (_selectedObject is StateNode node)
                 node.Deselect();
+            else if (_selectedObject is TransitionConnection transition)
+                transition.Deselect();
 
             _selectedObject = null;
 
@@ -519,6 +521,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 {
                     GUI.FocusControl(null);
                     _selectedObject = currentTransition;
+                    currentTransition.Select();
                 }
             }
 

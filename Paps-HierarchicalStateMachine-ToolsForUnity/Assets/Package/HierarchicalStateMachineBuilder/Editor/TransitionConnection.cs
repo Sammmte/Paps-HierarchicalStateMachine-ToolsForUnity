@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using System;
-using System.Numerics;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -14,6 +13,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         private const int ControlPaddingLeft = 20, ControlPaddingRight = 20, ControlPaddingTop = 20, ControlPaddingBottom = 20;
 
         private static readonly Color SelectedColor = new Color(44f / 255f, 130f / 255f, 201f / 255f);
+        private static readonly Color NormalColor = Color.white;
 
         private readonly StateNode _source;
         private readonly StateNode _target;
@@ -22,6 +22,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         private GUIStyle _controlsAreaStyle;
         private GUIStyle _simpleLabelStyle;
         private GenericTypeDrawer _triggerDrawer;
+
+        private Color _currentColor;
 
         public Vector2 StartPoint => GetStartPoint();
         public Vector2 EndPoint => GetEndPoint();
@@ -49,6 +51,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
             _simpleLabelStyle = new GUIStyle();
             _simpleLabelStyle.wordWrap = true;
+
+            _currentColor = NormalColor;
         }
 
         public void SetNewTriggerType(Type triggerType)
@@ -59,10 +63,10 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType);
         }
 
-        public void Draw(bool asSelected)
+        public void Draw()
         {
             var previousColor = Handles.color;
-            Handles.color = asSelected ? SelectedColor : Color.white;
+            Handles.color = _currentColor;
 
             if (IsReentrant())
             {
@@ -218,6 +222,16 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             Vector2 perpendicular = Vector2.Perpendicular(normalizedDirection);
 
             return Target.Center + (perpendicular * 7);
+        }
+
+        public void Select()
+        {
+            _currentColor = SelectedColor;
+        }
+
+        public void Deselect()
+        {
+            _currentColor = NormalColor;
         }
     }
 }
