@@ -410,6 +410,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 RemoveTransitionsRelatedTo(node);
                 RemoveParentConnectionsRelatedTo(node);
 
+                if (node.IsInitial)
+                    SetInitialStateNode(GetRoots()[0]);
+
                 if(IsSelected(node))
                     DeselectAll();
                 
@@ -421,8 +424,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             for(int i = 0; i < _transitions.Count; i++)
             {
-                if(HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _transitions[i].StateFrom) ||
-                    HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _transitions[i].StateTo))
+                if(_transitions[i].Source == node || _transitions[i].Target == node)
                 {
                     RemoveTransition(_transitions[i]);
                 }
@@ -435,7 +437,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
             for(int i = 0; i < _parentConnections.Count; i++)
             {
-                if(HierarchicalStateMachineBuilderHelper.AreEquals(node.StateId, _parentConnections[i].Parent.StateId))
+                if(node == _parentConnections[i].Parent)
                 {
                     RemoveChildFromParent(_parentConnections[i].Child);
                 }
@@ -599,8 +601,6 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             });
 
             node.AsInitial();
-
-            _builder.SetInitialState(node.StateId);
         }
 
         private void Reload()
@@ -751,12 +751,34 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         public void AddChildTo(StateNode parent, StateNode child)
         {
+            if (parent == child || HasParent(child) || GetParentOf(parent) == child)
+                return;
+
             _parentConnections.Add(new ParentConnection(parent, child));
+
+            if (child.IsInitial)
+                SetInitialStateNode(GetRoots()[0]);
 
             if (_parentConnections.Where(connection => connection.Parent == parent).Count() == 1)
                 SetInitialChildNodeOf(parent, child);
 
             RecordAndRebuild();
+        }
+
+        private List<StateNode> GetRoots()
+        {
+            List<StateNode> roots = new List<StateNode>();
+
+            for(int i = 0; i < _nodes.Count; i++)
+            {
+                if (HasParent(_nodes[i]) == false)
+                    roots.Add(_nodes[i]);
+            }
+
+            if (roots.Count == 0)
+                return null;
+            else
+                return roots;
         }
 
         public void AddParentConnectionFrom(StateNode parent, StateNode child)

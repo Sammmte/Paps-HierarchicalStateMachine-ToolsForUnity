@@ -162,10 +162,28 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
         private void SetInitialDefaultStateIfThereIsAny()
         {
-            if (_states.Count > 0)
-                SetInitialState(_states[0].StateId);
+            var roots = GetRoots();
+
+            if(roots != null)
+                SetInitialState(roots[0]);
             else
                 _serializedInitialStateId = "";
+        }
+
+        public object[] GetRoots()
+        {
+            List<object> roots = new List<object>();
+
+            for(int i = 0; i < _states.Count; i++)
+            {
+                if (HasParent(_states[i].StateId) == false)
+                    roots.Add(_states[i].StateId);
+            }
+
+            if (roots.Count == 0)
+                return null;
+            else
+                return roots.ToArray();
         }
 
         internal bool ContainsState(object stateId)
@@ -282,6 +300,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             if (StateIdType != parentStateId.GetType() || StateIdType != childStateId.GetType())
                 return;
 
+            if (AreEquals(parentStateId, childStateId) || HasParent(childStateId) || ChildIsParentOfParent(parentStateId, childStateId))
+                return;
+
             var connectionsOfParent = ConnectionsOf(parentStateId);
 
             if(connectionsOfParent != null)
@@ -292,6 +313,32 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             {
                 _parentConnections.Add(new ParentConnectionsInfo(parentStateId, childStateId));
             }
+        }
+
+        private bool AreEquals(object stateId1, object stateId2)
+        {
+            return HierarchicalStateMachineBuilderHelper.AreEquals(stateId1, stateId2);
+        }
+
+        private bool HasParent(object stateId)
+        {
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                if (_parentConnections[i].ContainsChild(stateId))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private bool ChildIsParentOfParent(object parentStateId, object childStateId)
+        {
+            var connections = ConnectionsOf(childStateId);
+
+            if (connections != null)
+                return connections.ContainsChild(parentStateId);
+
+            return false;
         }
 
         private ParentConnectionsInfo ConnectionsOf(object parentStateId)

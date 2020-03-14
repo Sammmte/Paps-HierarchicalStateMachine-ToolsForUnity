@@ -153,7 +153,20 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         public bool IsPointOverConnection(Vector2 point)
         {
-            return HandleUtility.DistancePointLine(point, StartPoint, EndPoint) <= ClickableExtraRange;
+            if (IsReentrant())
+            {
+                var points = GetReentrantLinePoints();
+
+                for(int i = 1; i < points.Length; i++)
+                {
+                    if (HandleUtility.DistancePointLine(point, points[i - 1], points[i]) <= ClickableExtraRange)
+                        return true;
+                }
+
+                return false;
+            }
+            else
+                return HandleUtility.DistancePointLine(point, StartPoint, EndPoint) <= ClickableExtraRange;
         }
 
         public ScriptableGuardCondition[] DrawGuardConditionArrayField(string label, ref bool open, ScriptableGuardCondition[] array)
