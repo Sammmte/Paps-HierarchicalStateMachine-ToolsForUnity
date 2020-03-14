@@ -3,16 +3,16 @@ using UnityEngine;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
-    internal class TransitionConnectionEventHandler
+    internal class ParentConnectionEventHandler
     {
         private HierarchicalStateMachineBuilderEditorWindow _window;
 
-        public TransitionConnectionEventHandler(HierarchicalStateMachineBuilderEditorWindow window)
+        public ParentConnectionEventHandler(HierarchicalStateMachineBuilderEditorWindow window)
         {
             _window = window;
         }
 
-        public void HandleEventFor(TransitionConnection transition, Event nodeEvent)
+        public void HandleEventFor(ParentConnection parentConnection, Event nodeEvent)
         {
             switch (nodeEvent.type)
             {
@@ -20,15 +20,15 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
                     if (IsLeftMouseClick(nodeEvent.button))
                     {
-                        if (transition.IsPointOverConnection(nodeEvent.mousePosition))
+                        if (parentConnection.IsPointOverConnection(nodeEvent.mousePosition))
                         {
-                            _window.Select(transition);
+                            _window.Select(parentConnection);
                             nodeEvent.Use();
                         }
                     }
-                    else if (IsRightMouseClick(nodeEvent.button) && _window.IsSelected(transition))
+                    else if (IsRightMouseClick(nodeEvent.button) && _window.IsSelected(parentConnection))
                     {
-                        DisplayNodeOptionsAtPosition(transition);
+                        DisplayNodeOptionsAtPosition(parentConnection);
                         nodeEvent.Use();
                     }
 
@@ -46,12 +46,11 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             return button == 1;
         }
 
-        private void DisplayNodeOptionsAtPosition(TransitionConnection transition)
+        private void DisplayNodeOptionsAtPosition(ParentConnection parentConnection)
         {
             GenericMenu genericMenu = new GenericMenu();
-            genericMenu.AddItem(new GUIContent("Remove transition"), false, () => _window.RemoveTransition(transition));
+            genericMenu.AddItem(new GUIContent("Remove child from parent"), false, () => _window.RemoveChildFromParent(parentConnection.Child));
             genericMenu.ShowAsContext();
         }
     }
-
 }

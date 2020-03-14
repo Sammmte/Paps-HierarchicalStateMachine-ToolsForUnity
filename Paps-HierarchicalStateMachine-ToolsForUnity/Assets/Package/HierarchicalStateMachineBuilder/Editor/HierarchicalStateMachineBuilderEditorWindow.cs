@@ -15,20 +15,23 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private List<StateNode> _nodes;
         private List<TransitionConnection> _transitions;
+        private List<ParentConnection> _parentConnections;
         private BackgroundGridDrawer _gridDrawer;
         private BuilderSettingsDrawer _builderSettingsDrawer;
         private WindowEventHandler _windowEventHandler;
         private StateNodeEventHandler _nodeEventHandler;
         private TransitionConnectionEventHandler _transitionConnectionEventHandler;
+        private ParentConnectionEventHandler _parentConnectionEventHandler;
         private HierarchicalStateMachineBuilderMetadata _metadata;
         private HierarchicalStateMachineBuilder _builder;
         private InspectorDrawer _inspectorDrawer;
 
-        private IInspectable _selectedObject;
+        private ISelectable _selectedObject;
 
         private StateNode _initialNode;
 
         private TransitionConnectionPreview _transitionPreview;
+        private ParentConnectionPreview _parentConnectionPreview;
         
         private static readonly Color backgroundColor = new Color(95f / 255f, 95f / 255f, 95f / 255f);
         private Texture2D backgroundTexture;
@@ -53,11 +56,13 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
             _nodes = new List<StateNode>();
             _transitions = new List<TransitionConnection>();
+            _parentConnections = new List<ParentConnection>();
 
             _gridDrawer = new BackgroundGridDrawer();
             _windowEventHandler = new WindowEventHandler(this);
             _nodeEventHandler = new StateNodeEventHandler(this);
             _transitionConnectionEventHandler = new TransitionConnectionEventHandler(this);
+            _parentConnectionEventHandler = new ParentConnectionEventHandler(this);
             _metadata = new HierarchicalStateMachineBuilderMetadata();
             _inspectorDrawer = new InspectorDrawer();
 
@@ -160,14 +165,17 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 return;
 
             DrawBackground();
+            DrawParentConnections();
             DrawTransitions();
             DrawNodes();
             DrawTransitionPreview();
+            DrawParentConnectionPreview();
             DrawBuilderSettings();
             DrawInspector();
 
             ProcessNodeEvents(Event.current);
             ProcessTransitionEvents(Event.current);
+            ProcessParentConnectionEvents(Event.current);
             ProcessWindowEvents(Event.current);
 
             if (GUI.changed) Repaint();
@@ -178,6 +186,15 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             if (_transitionPreview != null)
             {
                 _transitionPreview.Draw(Event.current.mousePosition);
+                GUI.changed = true;
+            }
+        }
+
+        private void DrawParentConnectionPreview()
+        {
+            if(HasParentConnectionPreview())
+            {
+                _parentConnectionPreview.Draw(Event.current.mousePosition);
                 GUI.changed = true;
             }
         }
@@ -221,6 +238,19 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 for (int i = 0; i < _transitions.Count; i++)
                 {
                     var current = _transitions[i];
+
+                    current.Draw();
+                }
+            }
+        }
+
+        private void DrawParentConnections()
+        {
+            if(_parentConnections.Count > 0)
+            {
+                for(int i = 0; i < _parentConnections.Count; i++)
+                {
+                    var current = _parentConnections[i];
 
                     current.Draw();
                 }
@@ -477,53 +507,36 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             }
         }
 
-        public void SelectNode(StateNode node)
+        private void ProcessParentConnectionEvents(Event e)
+        {
+            if(_parentConnections.Count > 0)
+            {
+                for(int i = 0; i < _parentConnections.Count; i++)
+                {
+                    var current = _parentConnections[i];
+
+                    _parentConnectionEventHandler.HandleEventFor(current, e);
+                }
+            }
+        }
+
+        public void Select(ISelectable selectable)
         {
             DeselectAll();
-            
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                var currentNode = _nodes[i];
 
-                if (currentNode == node)
-                {
-                    GUI.FocusControl(null);
-                    _selectedObject = currentNode;
-                    currentNode.Select();
-                }
-
-            }
+            GUI.FocusControl(null);
+            _selectedObject = selectable;
+            selectable.Select();
 
             Repaint();
         }
 
         public void DeselectAll()
         {
-            if (_selectedObject is StateNode node)
-                node.Deselect();
-            else if (_selectedObject is TransitionConnection transition)
-                transition.Deselect();
+            if(_selectedObject != null)
+                _selectedObject.Deselect();
 
             _selectedObject = null;
-
-            Repaint();
-        }
-
-        public void SelectTransition(TransitionConnection transition)
-        {
-            DeselectAll();
-            
-            for (int i = 0; i < _transitions.Count; i++)
-            {
-                var currentTransition = _transitions[i];
-
-                if (currentTransition == transition)
-                {
-                    GUI.FocusControl(null);
-                    _selectedObject = currentTransition;
-                    currentTransition.Select();
-                }
-            }
 
             Repaint();
         }
@@ -555,14 +568,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             EditorUtility.SetDirty(_builder);
         }
 
-        public bool IsSelected(StateNode node)
+        public bool IsSelected(ISelectable selectable)
         {
-            return object.ReferenceEquals(_selectedObject, node);
-        }
-
-        public bool IsSelected(TransitionConnection transition)
-        {
-            return object.ReferenceEquals(_selectedObject, transition);
+            return _selectedObject == selectable;
         }
 
         public bool IsInitial(StateNode node)
@@ -604,7 +612,30 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             if (HasTransitionPreview())
                 return _transitionPreview.Source;
-            else 
+            else
+                return null;
+        }
+
+        public void BeginParentConnectionPreviewFrom(StateNode parent)
+        {
+            _parentConnectionPreview = new ParentConnectionPreview(parent);
+        }
+
+        public void EndParentConnectionPreview()
+        {
+            _parentConnectionPreview = null;
+        }
+
+        public bool HasParentConnectionPreview()
+        {
+            return _parentConnectionPreview != null;
+        }
+
+        public StateNode GetParentNodeFromParentConnectionPreview()
+        {
+            if (HasParentConnectionPreview())
+                return _parentConnectionPreview.Parent;
+            else
                 return null;
         }
 
@@ -650,6 +681,23 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             {
                 _builder.AddTransition(_transitions[i].StateFrom, _transitions[i].Trigger, _transitions[i].StateTo,
                     _transitions[i].GuardConditions);
+            }
+        }
+
+        public void AddChildTo(StateNode parent, StateNode child)
+        {
+            _parentConnections.Add(new ParentConnection(parent, child));
+        }
+
+        public void RemoveChildFromParent(StateNode child)
+        {
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                if (_parentConnections[i].Child == child)
+                {
+                    _parentConnections.RemoveAt(i);
+                    break;
+                }
             }
         }
     }

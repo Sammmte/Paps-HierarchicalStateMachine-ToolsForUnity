@@ -6,9 +6,9 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
-    internal class TransitionConnection : IInspectable
+    internal class TransitionConnection : ISelectable
     {
-        private const float Width = 4f, ClickableExtraRange = 8f, ArrowWidthExtent = 8, ArrowHeightExtent = 8;
+        private const float Width = 4f, ClickableExtraRange = 8f, ArrowWidthExtent = 8, ArrowHeightExtent = 8, LineOffset = 7;
 
         private const int ControlPaddingLeft = 20, ControlPaddingRight = 20, ControlPaddingTop = 20, ControlPaddingBottom = 20;
 
@@ -211,7 +211,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
             Vector2 perpendicular = Vector2.Perpendicular(normalizedDirection);
 
-            return Source.Center + (perpendicular * 7);
+            return Source.Center + (perpendicular * LineOffset);
         }
 
         private Vector2 GetEndPoint()
@@ -221,7 +221,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
             Vector2 perpendicular = Vector2.Perpendicular(normalizedDirection);
 
-            return Target.Center + (perpendicular * 7);
+            return Target.Center + (perpendicular * LineOffset);
         }
 
         public void Select()

@@ -26,6 +26,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                     else if (IsLeftMouseClick(windowEvent.button))
                     {
                         _window.EndTransitionPreview();
+                        _window.EndParentConnectionPreview();
                         _window.DeselectAll();
                     }
 

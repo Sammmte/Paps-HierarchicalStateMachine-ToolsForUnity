@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
-    internal class ParentConnection
+    internal class ParentConnection : ISelectable
     {
-        private const float Width = 4f, ClickableExtraRange = 8f, ArrowWidthExtent = 8, ArrowHeightExtent = 8;
+        private const float Width = 4f, ClickableExtraRange = 8f, ArrowWidthExtent = 8, ArrowHeightExtent = 8, LineOffset = 50;
 
         private const int ControlPaddingLeft = 20, ControlPaddingRight = 20, ControlPaddingTop = 20, ControlPaddingBottom = 20;
 
@@ -17,8 +17,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         private GUIStyle _controlsAreaStyle;
         private GUIStyle _simpleLabelStyle;
 
-        public Vector2 StartPoint => Parent.Center;
-        public Vector2 EndPoint => Child.Center;
+        public Vector2 StartPoint => GetStartPoint();
+        public Vector2 EndPoint => GetEndPoint();
 
         public StateNode Parent { get; private set; }
         public StateNode Child { get; private set; }
@@ -94,6 +94,26 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         public void Deselect()
         {
             _currentColor = NormalColor;
+        }
+
+        private Vector2 GetStartPoint()
+        {
+            Vector2 direction = Child.Center - Parent.Center;
+            Vector2 normalizedDirection = direction.normalized;
+
+            Vector2 perpendicular = Vector2.Perpendicular(normalizedDirection);
+
+            return Parent.Center + (perpendicular * LineOffset);
+        }
+
+        private Vector2 GetEndPoint()
+        {
+            Vector2 direction = Child.Center - Parent.Center;
+            Vector2 normalizedDirection = direction.normalized;
+
+            Vector2 perpendicular = Vector2.Perpendicular(normalizedDirection);
+
+            return Child.Center + (perpendicular * LineOffset);
         }
     }
 }

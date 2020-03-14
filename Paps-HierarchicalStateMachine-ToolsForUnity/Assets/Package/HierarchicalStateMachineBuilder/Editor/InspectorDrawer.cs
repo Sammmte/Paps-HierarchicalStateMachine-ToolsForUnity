@@ -28,7 +28,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             _controlsAreaStyle.padding = new RectOffset(20, 20, 20, 20);
         }
 
-        public void Draw(Rect windowRect, IInspectable inspectable)
+        public void Draw(Rect windowRect, ISelectable inspectable)
         {
             var position = new Vector2(LeftPadding, TopPadding);
             var size = new Vector2(Width, Height);

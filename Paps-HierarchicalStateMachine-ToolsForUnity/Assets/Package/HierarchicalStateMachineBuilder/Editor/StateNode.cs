@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
-    internal class StateNode : IInspectable
+    internal class StateNode : ISelectable
     {
         private const float Width = 200;
         private const float Height = 150;

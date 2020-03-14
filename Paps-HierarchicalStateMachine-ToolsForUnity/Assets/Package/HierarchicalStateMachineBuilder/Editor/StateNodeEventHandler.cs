@@ -27,8 +27,13 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                                 _window.AddTransition(_window.GetSourceNodeFromTransitionPreview(), node);
                                 _window.EndTransitionPreview();
                             }
+                            else if(_window.HasParentConnectionPreview())
+                            {
+                                _window.AddChildTo(_window.GetParentNodeFromParentConnectionPreview(), node);
+                                _window.EndParentConnectionPreview();
+                            }
 
-                            _window.SelectNode(node);
+                            _window.Select(node);
                             nodeEvent.Use();
                         }
                             
@@ -68,6 +73,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             GenericMenu genericMenu = new GenericMenu();
             genericMenu.AddItem(new GUIContent("Set as initial state"), false, () => _window.SetInitialStateNode(node));
             genericMenu.AddItem(new GUIContent("Add transition"), false, () => _window.BeginTransitionPreviewFrom(node));
+            genericMenu.AddItem(new GUIContent("Add child state"), false, () => _window.BeginParentConnectionPreviewFrom(node));
             genericMenu.AddItem(new GUIContent("Remove node"), false, () => _window.RemoveNode(node));
             genericMenu.ShowAsContext();
         }
