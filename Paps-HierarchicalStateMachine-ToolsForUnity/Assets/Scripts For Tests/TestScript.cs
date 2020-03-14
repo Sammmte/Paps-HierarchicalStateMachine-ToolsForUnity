@@ -29,6 +29,14 @@ namespace Tests
 
                     if (eventHandlers != null)
                         Debug.Log("State " + state + " contains " + eventHandlers.Length + " event handlers");
+
+                    var childs = stateMachine.GetImmediateChildsOf(state);
+
+                    if(childs != null)
+                    {
+                        foreach (var child in childs)
+                            Debug.Log("Child state: " + child);
+                    }
                 }
 
                 var transitions = stateMachine.GetTransitions();

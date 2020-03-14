@@ -28,8 +28,6 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private ISelectable _selectedObject;
 
-        private StateNode _initialNode;
-
         private TransitionConnectionPreview _transitionPreview;
         private ParentConnectionPreview _parentConnectionPreview;
         
@@ -98,6 +96,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             {
                 LoadStates();
                 LoadTransitions();
+                LoadParentConnections();
 
                 return true;
             }
@@ -145,6 +144,28 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 for (int i = 0; i < transitions.Length; i++)
                 {
                     AddTransitionFrom(transitions[i]);
+                }
+            }
+        }
+
+        private void LoadParentConnections()
+        {
+            for(int i = 0; i < _nodes.Count; i++)
+            {
+                var childs = _builder.GetChildsOf(_nodes[i].StateId);
+                var initialChildId = _builder.GetInitialChildOf(_nodes[i].StateId);
+
+                if(childs != null)
+                {
+                    for (int j = 0; j < childs.Length; j++)
+                    {
+                        var childNode = StateNodeOf(childs[j]);
+
+                        if (HierarchicalStateMachineBuilderHelper.AreEquals(childs[j], initialChildId))
+                            childNode.AsInitialChild();
+
+                        AddParentConnectionFrom(_nodes[i], childNode);
+                    }
                 }
             }
         }
@@ -543,12 +564,15 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         public void SetInitialStateNode(StateNode node)
         {
-            _nodes.ForEach(n => n.AsNormal());
+            _nodes.ForEach(n =>
+            {
+                if(n.IsInitial)
+                    n.AsNormal();
+            });
 
-            _initialNode = node;
-            _initialNode.AsInitial();
+            node.AsInitial();
 
-            _builder.SetInitialState(_initialNode.StateId);
+            _builder.SetInitialState(node.StateId);
         }
 
         private void Reload()
@@ -571,11 +595,6 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         public bool IsSelected(ISelectable selectable)
         {
             return _selectedObject == selectable;
-        }
-
-        public bool IsInitial(StateNode node)
-        {
-            return _initialNode == node;
         }
 
         public bool HasSelectedNode()
@@ -644,22 +663,13 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             ClearBuilder();
             RebuildStates();
             RebuildTransitions();
+            RebuildParentConnections();
             RebuildMetadata();
-            RebuildInitialState();
-        }
-
-        private void RebuildInitialState()
-        {
-            var initialState = _builder.GetInitialStateId();
-
-            if (initialState != null)
-                SetInitialStateNode(StateNodeOf(_builder.GetInitialStateId()));
-            else if (_nodes.Count > 0)
-                SetInitialStateNode(_nodes[0]);
         }
 
         private void ClearBuilder()
         {
+            _builder.RemoveAllParentConnections();
             _builder.RemoveAllTransitions();
             _builder.RemoveAllStates();
         }
@@ -669,8 +679,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             for (int i = 0; i < _nodes.Count; i++)
             {
                 _builder.AddState(_nodes[i].StateId, _nodes[i].StateObject);
-                
-                if(IsInitial(_nodes[i]))
+
+                if (_nodes[i].IsInitial)
                     SetInitialStateNode(_nodes[i]);
             }
         }
@@ -684,7 +694,44 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             }
         }
 
+        private void RebuildParentConnections()
+        {
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                var current = _parentConnections[i];
+
+                _builder.AddChildTo(current.Parent.StateId, current.Child.StateId);
+
+                if (current.Child.IsInitialChild)
+                    SetInitialChildNodeOf(current.Parent, current.Child);
+            }
+        }
+
+        public void SetInitialChildNodeOf(StateNode parent, StateNode initialChild)
+        {
+            var parentConnections = _parentConnections.Where(connection => connection.Parent == parent);
+
+            foreach(var connection in parentConnections)
+            {
+                connection.Child.AsNormal();
+            }
+
+            initialChild.AsInitialChild();
+
+            _builder.SetInitialChildOf(parent.StateId, initialChild.StateId);
+        }
+
         public void AddChildTo(StateNode parent, StateNode child)
+        {
+            _parentConnections.Add(new ParentConnection(parent, child));
+
+            if (_parentConnections.Where(connection => connection.Parent == parent).Count() == 1)
+                SetInitialChildNodeOf(parent, child);
+
+            RecordAndRebuild();
+        }
+
+        public void AddParentConnectionFrom(StateNode parent, StateNode child)
         {
             _parentConnections.Add(new ParentConnection(parent, child));
         }
@@ -695,10 +742,43 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             {
                 if (_parentConnections[i].Child == child)
                 {
+                    child.AsNormal();
+
+                    if (IsSelected(_parentConnections[i]))
+                        DeselectAll();
+
                     _parentConnections.RemoveAt(i);
+
+                    RecordAndRebuild();
                     break;
                 }
             }
+        }
+
+        public bool HasParent(StateNode node)
+        {
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                var current = _parentConnections[i];
+
+                if (current.Child == node)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public StateNode GetParentOf(StateNode node)
+        {
+            for (int i = 0; i < _parentConnections.Count; i++)
+            {
+                var current = _parentConnections[i];
+
+                if (current.Child == node)
+                    return current.Parent;
+            }
+
+            return null;
         }
     }
 }

@@ -41,6 +41,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         private static readonly Color NormalColor = Color.gray;
         private static readonly Color InitialColor = new Color(235f / 255f, 149f / 255f, 50f / 255f);
         private static readonly Color SelectedColor = new Color(135f / 255f, 206f / 255f, 250f / 255f);
+        private static readonly Color InitialChildColor = Color.red;
 
         private Color _currentColor;
 
@@ -48,6 +49,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         public Vector2 Position => _nodeRect.position;
         public Vector2 Center => _nodeRect.center;
+
+        public bool IsInitial { get; private set; }
+        public bool IsInitialChild { get; private set; }
 
         public StateNode(Vector2 position, Type stateIdType, int nodeId, ScriptableState stateAsset = null, object stateId = null)
         {
@@ -159,12 +163,23 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         public void AsNormal()
         {
+            IsInitial = false;
+            IsInitialChild = false;
             _currentColor = NormalColor;
         }
 
         public void AsInitial()
         {
+            IsInitial = true;
+            IsInitialChild = false;
             _currentColor = InitialColor;
+        }
+
+        public void AsInitialChild()
+        {
+            IsInitial = false;
+            IsInitialChild = true;
+            _currentColor = InitialChildColor;
         }
 
         public Rect GetRect()

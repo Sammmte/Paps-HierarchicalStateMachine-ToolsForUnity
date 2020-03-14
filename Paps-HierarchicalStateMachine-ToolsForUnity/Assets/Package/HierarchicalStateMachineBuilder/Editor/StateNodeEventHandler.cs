@@ -71,7 +71,12 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         private void DisplayNodeOptionsAtPosition(StateNode node)
         {
             GenericMenu genericMenu = new GenericMenu();
-            genericMenu.AddItem(new GUIContent("Set as initial state"), false, () => _window.SetInitialStateNode(node));
+
+            if(_window.HasParent(node))
+                genericMenu.AddItem(new GUIContent("Set as initial child"), false, () => _window.SetInitialChildNodeOf(_window.GetParentOf(node), node));
+            else
+                genericMenu.AddItem(new GUIContent("Set as initial state"), false, () => _window.SetInitialStateNode(node));
+                
             genericMenu.AddItem(new GUIContent("Add transition"), false, () => _window.BeginTransitionPreviewFrom(node));
             genericMenu.AddItem(new GUIContent("Add child state"), false, () => _window.BeginParentConnectionPreviewFrom(node));
             genericMenu.AddItem(new GUIContent("Remove node"), false, () => _window.RemoveNode(node));

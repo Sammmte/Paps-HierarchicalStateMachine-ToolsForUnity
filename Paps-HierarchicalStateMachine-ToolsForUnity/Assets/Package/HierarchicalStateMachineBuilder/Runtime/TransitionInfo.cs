@@ -95,5 +95,10 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
                 guardConditions.CopyTo(_guardConditions, 0);
             }
         }
+
+        private TransitionInfo()
+        {
+
+        }
     }
 }

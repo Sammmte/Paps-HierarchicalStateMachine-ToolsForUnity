@@ -5,6 +5,7 @@ using Paps.StateMachines.Extensions;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 [assembly: InternalsVisibleTo("Paps.HierarchicalStateMachine_ToolsForUnity.Editor")]
 namespace Paps.HierarchicalStateMachine_ToolsForUnity
@@ -26,6 +27,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             {
                 _stateIdType = value;
                 _stateIdTypeFullName = _stateIdType.FullName;
+                RemoveAllParentConnections();
                 RemoveAllTransitions();
                 RemoveAllStates();
             }
@@ -54,6 +56,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
         [SerializeField] 
         private List<TransitionInfo> _transitions;
+
+        [SerializeField]
+        private List<ParentConnectionsInfo> _parentConnections;
 
         [SerializeField]
         private string _stateIdTypeFullName, _triggerTypeFullName;
@@ -85,6 +90,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             
             if(_transitions == null)
                 _transitions = new List<TransitionInfo>();
+
+            if (_parentConnections == null)
+                _parentConnections = new List<ParentConnectionsInfo>();
 
             if (_metadata == null)
                 _metadata = new List<Metadata>();
@@ -263,12 +271,94 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             _transitions.Clear();
         }
 
+        internal void AddChildTo(object parentStateId, object childStateId)
+        {
+            if (ContainsState(parentStateId) == false || ContainsState(childStateId) == false)
+                return;
+
+            if (parentStateId == null || childStateId == null)
+                return;
+
+            if (StateIdType != parentStateId.GetType() || StateIdType != childStateId.GetType())
+                return;
+
+            var connectionsOfParent = ConnectionsOf(parentStateId);
+
+            if(connectionsOfParent != null)
+            {
+                connectionsOfParent.AddChild(childStateId);
+            }
+            else
+            {
+                _parentConnections.Add(new ParentConnectionsInfo(parentStateId, childStateId));
+            }
+        }
+
+        private ParentConnectionsInfo ConnectionsOf(object parentStateId)
+        {
+            for(int i = 0; i < _parentConnections.Count; i++)
+            {
+                var current = _parentConnections[i];
+
+                if (HierarchicalStateMachineBuilderHelper.AreEquals(current.ParentStateId, parentStateId))
+                    return current;
+            }
+
+            return null;
+        }
+
+        internal bool ParentContainsChild(object parentStateId, object childStateId)
+        {
+            var connectionOfParent = ConnectionsOf(parentStateId);
+
+            if(connectionOfParent != null)
+            {
+                return connectionOfParent.ContainsChild(childStateId);
+            }
+
+            return false;
+        }
+
+        internal void SetInitialChildOf(object parentStateId, object initialChildStateId)
+        {
+            var connectionsOfParent = ConnectionsOf(parentStateId);
+
+            if (connectionsOfParent != null)
+                connectionsOfParent.SetInitialChild(initialChildStateId);
+        }
+
+        internal object GetInitialChildOf(object parentStateId)
+        {
+            var connectionsOfParent = ConnectionsOf(parentStateId);
+
+            if (connectionsOfParent != null)
+                return connectionsOfParent.InitialChildId;
+
+            return null;
+        }
+
+        internal object[] GetChildsOf(object parentStateId)
+        {
+            var connectionsOfParent = ConnectionsOf(parentStateId);
+
+            if (connectionsOfParent != null)
+                return connectionsOfParent.GetChilds();
+
+            return null;
+        }
+
+        internal void RemoveAllParentConnections()
+        {
+            _parentConnections.Clear();
+        }
+
         private HierarchicalStateMachine<TState, TTrigger> Build<TState, TTrigger>()
         {
             var stateMachine = new HierarchicalStateMachine<TState, TTrigger>();
 
             AddStates(stateMachine);
             AddTransitionsAndGuardConditions(stateMachine);
+            SetParentConnections(stateMachine);
 
             return stateMachine;
         }
@@ -314,6 +404,28 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
                     {
                         stateMachine.AddGuardConditionTo(transition, ScriptableObject.Instantiate(current.GuardConditions[j]));
                     }
+                }
+            }
+        }
+
+        private void SetParentConnections<TState, TTrigger>(HierarchicalStateMachine<TState, TTrigger> stateMachine)
+        {
+            if(_parentConnections.Count > 0)
+            {
+                for(int i = 0; i < _parentConnections.Count; i++)
+                {
+                    var current = _parentConnections[i];
+
+                    var parentId = (TState)current.ParentStateId;
+                    var initialChildId = (TState)current.InitialChildId;
+                    var childs = Array.ConvertAll(current.GetChilds(), objectId => (TState)objectId);
+
+                    for(int j = 0; j < childs.Length; j++)
+                    {
+                        stateMachine.AddChildTo(parentId, childs[j]);
+                    }
+
+                    stateMachine.SetInitialStateTo(parentId, initialChildId);
                 }
             }
         }
