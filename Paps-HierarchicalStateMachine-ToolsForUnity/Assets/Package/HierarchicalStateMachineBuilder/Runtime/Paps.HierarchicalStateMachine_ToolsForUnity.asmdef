@@ -1,0 +1,16 @@
+{
+    "name": "Paps.HierarchicalStateMachine_ToolsForUnity",
+    "references": [
+        "GUID:178f65fed8970cb4b88211a864d0308f",
+        "GUID:7131f946e6585de41a78bce55b39d5cf"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
