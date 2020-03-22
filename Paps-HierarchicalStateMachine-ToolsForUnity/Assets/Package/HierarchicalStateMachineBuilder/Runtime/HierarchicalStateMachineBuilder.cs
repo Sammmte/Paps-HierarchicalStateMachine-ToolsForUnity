@@ -13,7 +13,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
     [CreateAssetMenu(menuName = "Paps/State Machine Builders/Hierarchical State Machine Builder")]
     public sealed class HierarchicalStateMachineBuilder : ScriptableObject
     {
-        internal Type StateIdType
+        public Type StateIdType
         {
             get
             {
@@ -33,7 +33,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             }
         }
 
-        internal Type TriggerType
+        public Type TriggerType
         {
             get
             {

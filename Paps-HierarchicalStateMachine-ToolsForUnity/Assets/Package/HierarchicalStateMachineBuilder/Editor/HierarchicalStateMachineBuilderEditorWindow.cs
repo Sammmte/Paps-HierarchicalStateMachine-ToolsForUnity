@@ -158,13 +158,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             var transitions = _builder.GetTransitions();
 
-            if (transitions != null)
-            {
-                for (int i = 0; i < transitions.Length; i++)
-                {
-                    AddTransitionFrom(transitions[i]);
-                }
-            }
+            AddTransitionsFrom(transitions);
         }
 
         private void LoadParentConnections()
@@ -387,24 +381,47 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             
                 var newTransition = new TransitionConnection(source, target, _builder.TriggerType);
 
-                newTransition.OnTriggerChanged += (connection, previousTrigger, currentTrigger) => RecordAndRebuild();
-                newTransition.OnGuardConditionsChanged += (connection, currentGuardConditions) => RecordAndRebuild();
+                newTransition.OnTriggersWithGuardConditionsChanged += connection => RecordAndRebuild();
 
                 _transitions.Add(newTransition);
             });
         }
 
-        public void AddTransitionFrom(TransitionInfo transitionInfo)
+        public void AddTransitionsFrom(TransitionInfo[] allTransitionInfo)
         {
-            var source = StateNodeOf(transitionInfo.StateFrom);
-            var target = StateNodeOf(transitionInfo.StateTo);
-            
-            var newTransition = new TransitionConnection(source, target, _builder.TriggerType, transitionInfo.Trigger, transitionInfo.GuardConditions);
+            if (allTransitionInfo == null)
+                return;
 
-            newTransition.OnTriggerChanged += (connection, previousTrigger, currentTrigger) => RecordAndRebuild();
-            newTransition.OnGuardConditionsChanged += (connection, currentGuardConditions) => RecordAndRebuild();
-            
-            _transitions.Add(newTransition);
+            var transitionConnectionComposite = new Dictionary<(StateNode, StateNode), Dictionary<object, ScriptableGuardCondition[]>>();
+
+            for(int i = 0; i < allTransitionInfo.Length; i++)
+            {
+                var current = allTransitionInfo[i];
+
+                var source = StateNodeOf(current.StateFrom);
+                var target = StateNodeOf(current.StateTo);
+
+                var tuple = (source, target);
+
+                if (transitionConnectionComposite.ContainsKey(tuple) == false)
+                    transitionConnectionComposite.Add(tuple, new Dictionary<object, ScriptableGuardCondition[]>());
+
+                transitionConnectionComposite[tuple].Add(current.Trigger, current.GuardConditions);
+            }
+
+            foreach(var composite in transitionConnectionComposite)
+            {
+                var newTransitionConnection = new TransitionConnection(composite.Key.Item1, composite.Key.Item2, _builder.TriggerType, composite.Value);
+
+                newTransitionConnection.OnTriggersWithGuardConditionsChanged += _ => RecordAndRebuild();
+
+                _transitions.Add(newTransitionConnection);
+            }
+        }
+
+        private bool AreEquals(object obj1, object obj2)
+        {
+            return HierarchicalStateMachineBuilderHelper.AreEquals(obj1, obj2);
         }
 
         private bool ContainsTransitionWithSourceAndTarget(StateNode source, StateNode target)
@@ -742,8 +759,15 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             for (int i = 0; i < _transitions.Count; i++)
             {
-                _builder.AddTransition(_transitions[i].StateFrom, _transitions[i].Trigger, _transitions[i].StateTo,
-                    _transitions[i].GuardConditions);
+                var triggerWithGuardConditions = _transitions[i].TriggersWithGuardConditions;
+
+                for(int j = 0; j < triggerWithGuardConditions.Length; j++)
+                {
+                    var current = triggerWithGuardConditions[j];
+
+                    _builder.AddTransition(_transitions[i].StateFrom, current.Trigger, _transitions[i].StateTo,
+                    current.GuardConditions);
+                }
             }
         }
 

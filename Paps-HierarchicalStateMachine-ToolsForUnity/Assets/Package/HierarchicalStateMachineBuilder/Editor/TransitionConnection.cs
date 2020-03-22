@@ -3,9 +3,106 @@ using UnityEngine;
 using System;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
+using System.Collections.Generic;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
+    internal class TriggerWithGuardConditions
+    {
+        private GenericTypeDrawer _triggerDrawer;
+        public object Trigger => _triggerDrawer.Value;
+        public ScriptableGuardCondition[] GuardConditions { get; private set; }
+        public Action<TriggerWithGuardConditions> OnTriggerChanged;
+        public Action<TriggerWithGuardConditions> OnGuardConditionsChanged;
+        private bool _guardConditionsArrayOpened;
+
+        public TriggerWithGuardConditions(Type triggerType, object trigger = null, ScriptableGuardCondition[] guardConditions = null)
+        {
+            if(trigger == null)
+                _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType);
+            else
+                _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType, trigger);
+
+            if (guardConditions == null)
+                GuardConditions = new ScriptableGuardCondition[0];
+            else
+            {
+                GuardConditions = new ScriptableGuardCondition[guardConditions.Length];
+
+                guardConditions.CopyTo(GuardConditions, 0);
+            }
+        }
+
+        public void Draw()
+        {
+            var previousTrigger = Trigger;
+            DrawTriggerField();
+            if (previousTrigger != Trigger) OnTriggerChanged?.Invoke(this);
+
+            var previousGuardConditions = GuardConditions;
+            DrawGuardConditionsField();
+            if (previousGuardConditions != GuardConditions) OnGuardConditionsChanged?.Invoke(this);
+        }
+
+        public void SetNewTriggerType(Type triggerType)
+        {
+            _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType);
+        }
+
+        private void DrawTriggerField()
+        {
+            _triggerDrawer.Draw("Trigger");
+        }
+
+        private void DrawGuardConditionsField()
+        {
+            GuardConditions = DrawGuardConditionArrayField("Guard Conditions", ref _guardConditionsArrayOpened, GuardConditions);
+        }
+
+        public ScriptableGuardCondition[] DrawGuardConditionArrayField(string label, ref bool open, ScriptableGuardCondition[] array)
+        {
+            if (array == null)
+                array = new ScriptableGuardCondition[0];
+
+            open = EditorGUILayout.Foldout(open, label);
+            int newSize = array.Length;
+
+            if (open)
+            {
+                newSize = EditorGUILayout.IntField("Size", newSize);
+                newSize = newSize < 0 ? 0 : newSize;
+
+                if (newSize != array.Length)
+                {
+                    array = ResizeArray(array, newSize);
+                }
+
+                for (var i = 0; i < newSize; i++)
+                {
+                    var previousValue = array[i];
+                    array[i] = (ScriptableGuardCondition)EditorGUILayout.ObjectField("Value " + i, array[i], typeof(ScriptableGuardCondition), false);
+                    if (previousValue != array[i]) OnGuardConditionsChanged?.Invoke(this);
+                }
+            }
+            return array;
+        }
+
+        private T[] ResizeArray<T>(T[] array, int size)
+        {
+            T[] newArray = new T[size];
+
+            for (var i = 0; i < size; i++)
+            {
+                if (i < array.Length)
+                {
+                    newArray[i] = array[i];
+                }
+            }
+
+            return newArray;
+        }
+    }
+
     internal class TransitionConnection : ISelectable
     {
         private const float Width = 4f, ClickableExtraRange = 8f, ArrowWidthExtent = 8, ArrowHeightExtent = 8, LineOffset = 7;
@@ -14,38 +111,48 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private static readonly Color SelectedColor = new Color(44f / 255f, 130f / 255f, 201f / 255f);
         private static readonly Color NormalColor = Color.white;
-
-        private readonly StateNode _source;
-        private readonly StateNode _target;
         
-        private bool _guardConditionsArrayOpened;
+        private bool _triggersListOpened;
+        private Vector2 _scrollPosition;
         private GUIStyle _controlsAreaStyle;
         private GUIStyle _simpleLabelStyle;
-        private GenericTypeDrawer _triggerDrawer;
 
         private Color _currentColor;
 
         public Vector2 StartPoint => GetStartPoint();
         public Vector2 EndPoint => GetEndPoint();
-        public object Trigger => _triggerDrawer.Value;
-        public ScriptableGuardCondition[] GuardConditions { get; private set; }
-        public Action<TransitionConnection, object, object> OnTriggerChanged;
-        public Action<TransitionConnection, ScriptableGuardCondition[]> OnGuardConditionsChanged;
+        private List<TriggerWithGuardConditions> _triggersWithGuardConditionsList = new List<TriggerWithGuardConditions>();
+        public TriggerWithGuardConditions[] TriggersWithGuardConditions => _triggersWithGuardConditionsList.ToArray();
+        public Action<TransitionConnection> OnTriggersWithGuardConditionsChanged;
 
-        public StateNode Source => _source;
-        public StateNode Target => _target;
+        public StateNode Source { get; private set; }
+        public StateNode Target { get; private set; }
 
         public object StateFrom => Source.StateId;
         public object StateTo => Target.StateId;
 
-        public TransitionConnection(StateNode source, StateNode target, Type triggerType, object trigger = null, ScriptableGuardCondition[] guardConditions = null)
+        private Type _triggerType;
+
+        public TransitionConnection(StateNode source, StateNode target, Type triggerType, Dictionary<object, ScriptableGuardCondition[]> triggersWithGuardConditions = null)
         {
-            _source = source;
-            _target = target;
+            Source = source;
+            Target = target;
 
-            _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType, trigger);
-            GuardConditions = guardConditions;
+            _triggerType = triggerType;
 
+            if (triggersWithGuardConditions != null)
+            {
+                foreach (var triggerWithGuardConditions in triggersWithGuardConditions)
+                {
+                    var t = new TriggerWithGuardConditions(_triggerType, triggerWithGuardConditions.Key, triggerWithGuardConditions.Value);
+                    t.OnTriggerChanged += CallOnTriggersWithGuardConditionsChangedEvent;
+                    t.OnGuardConditionsChanged += CallOnTriggersWithGuardConditionsChangedEvent;
+
+                    _triggersWithGuardConditionsList.Add(t);
+                }
+                    
+            }
+            
             _controlsAreaStyle = new GUIStyle();
             _controlsAreaStyle.padding = new RectOffset(ControlPaddingLeft, ControlPaddingRight, ControlPaddingTop, ControlPaddingBottom);
 
@@ -55,12 +162,17 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             _currentColor = NormalColor;
         }
 
+        private void CallOnTriggersWithGuardConditionsChangedEvent(TriggerWithGuardConditions triggerWithGuardConditions)
+        {
+            OnTriggersWithGuardConditionsChanged?.Invoke(this);
+        }
+
         public void SetNewTriggerType(Type triggerType)
         {
-            if (triggerType == null)
-                _triggerDrawer = null;
-            else
-                _triggerDrawer = GenericTypeDrawerFactory.Create(triggerType);
+            _triggerType = triggerType;
+
+            foreach (var triggerWithGuardCondtions in _triggersWithGuardConditionsList)
+                triggerWithGuardCondtions.SetNewTriggerType(triggerType);
         }
 
         public void Draw()
@@ -119,36 +231,14 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         public void DrawControls()
         {
             EditorGUILayout.BeginVertical(_controlsAreaStyle);
-            
-            DrawTransitionParts();
-            
-            GUILayout.Space(10);
 
-            var previousTrigger = Trigger;
-            DrawTriggerField();
-            if (previousTrigger != Trigger) OnTriggerChanged?.Invoke(this, previousTrigger, Trigger);
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
-            var previousGuardConditions = GuardConditions;
-            DrawGuardConditionsField();
-            if (previousGuardConditions != GuardConditions) OnGuardConditionsChanged?.Invoke(this, GuardConditions);
+            _triggersWithGuardConditionsList = DrawTriggerWithGuardConditionsArrayField("Triggers", ref _triggersListOpened, _triggersWithGuardConditionsList);
+
+            EditorGUILayout.EndScrollView();
 
             EditorGUILayout.EndVertical();
-        }
-
-        private void DrawTransitionParts()
-        {
-            if(Source.StateId != null && Trigger != null && Target.StateId != null)
-                GUILayout.Label("From State: " + Source.StateId + " -> When Triggered: " + Trigger + " -> To State: " + Target.StateId, _simpleLabelStyle);
-        }
-
-        private void DrawTriggerField()
-        {
-            _triggerDrawer.Draw("Trigger");
-        }
-
-        private void DrawGuardConditionsField()
-        {
-            GuardConditions = DrawGuardConditionArrayField("Guard Conditions", ref _guardConditionsArrayOpened, GuardConditions);
         }
 
         public bool IsPointOverConnection(Vector2 point)
@@ -169,47 +259,51 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 return HandleUtility.DistancePointLine(point, StartPoint, EndPoint) <= ClickableExtraRange;
         }
 
-        public ScriptableGuardCondition[] DrawGuardConditionArrayField(string label, ref bool open, ScriptableGuardCondition[] array)
+        private List<TriggerWithGuardConditions> DrawTriggerWithGuardConditionsArrayField(string label, ref bool open, List<TriggerWithGuardConditions> list)
         {
-            if (array == null)
-                array = new ScriptableGuardCondition[0];
-
             open = EditorGUILayout.Foldout(open, label);
-            int newSize = array.Length;
+            int newSize = list.Count;
 
-            if (open)
+            if(open)
             {
                 newSize = EditorGUILayout.IntField("Size", newSize);
                 newSize = newSize < 0 ? 0 : newSize;
 
-                if (newSize != array.Length)
+                if(newSize != list.Count)
                 {
-                    array = ResizeArray(array, newSize);
+                    list = ResizeList(list, newSize);
                 }
 
-                for (var i = 0; i < newSize; i++)
+                for(int i = 0; i < newSize; i++)
                 {
-                    var previousValue = array[i];
-                    array[i] = (ScriptableGuardCondition)EditorGUILayout.ObjectField("Value " + i, array[i], typeof(ScriptableGuardCondition), false);
-                    if (previousValue != array[i]) OnGuardConditionsChanged?.Invoke(this, GuardConditions);
+                    list[i].Draw();
                 }
             }
-            return array;
+
+            return list;
         }
 
-        private T[] ResizeArray<T>(T[] array, int size)
+        private List<TriggerWithGuardConditions> ResizeList(List<TriggerWithGuardConditions> list, int size)
         {
-            T[] newArray = new T[size];
+            List<TriggerWithGuardConditions> newList = new List<TriggerWithGuardConditions>();
 
             for (var i = 0; i < size; i++)
             {
-                if (i < array.Length)
+                if (i < list.Count)
                 {
-                    newArray[i] = array[i];
+                    newList.Add(list[i]);
+                }
+                else
+                {
+                    var t = new TriggerWithGuardConditions(_triggerType);
+                    t.OnTriggerChanged += CallOnTriggersWithGuardConditionsChangedEvent;
+                    t.OnGuardConditionsChanged += CallOnTriggersWithGuardConditionsChangedEvent;
+
+                    newList.Add(t);
                 }
             }
 
-            return newArray;
+            return newList;
         }
 
         private bool IsReentrant()

@@ -1,5 +1,6 @@
 ﻿using Paps.HierarchicalStateMachine_ToolsForUnity;
 using Paps.StateMachines;
+using System.Reflection;
 using UnityEngine;
 
 namespace Tests
@@ -11,15 +12,23 @@ namespace Tests
 
         public void Start()
         {
-            var stateMachine = (HierarchicalStateMachine<string, string>)_stateMachineBuilder.Build();
+            var stateMachine = _stateMachineBuilder.Build();
 
+            GetType()
+                .GetMethod(nameof(ShowMachineData), BindingFlags.Instance | BindingFlags.NonPublic)
+                .MakeGenericMethod(_stateMachineBuilder.StateIdType, _stateMachineBuilder.TriggerType)
+                .Invoke(this, new object[] { stateMachine });
+        }
+
+        private void ShowMachineData<TState, TTrigger>(HierarchicalStateMachine<TState, TTrigger> stateMachine)
+        {
             var states = stateMachine.GetStates();
 
             Debug.Log("State count: " + stateMachine.StateCount);
 
             Debug.Log("Initial State: " + stateMachine.InitialState);
 
-            if(states != null)
+            if (states != null)
             {
                 foreach (var state in states)
                 {
@@ -32,7 +41,7 @@ namespace Tests
 
                     var childs = stateMachine.GetImmediateChildsOf(state);
 
-                    if(childs != null)
+                    if (childs != null)
                     {
                         foreach (var child in childs)
                             Debug.Log("Child state: " + child);
@@ -43,7 +52,7 @@ namespace Tests
 
                 var transitions = stateMachine.GetTransitions();
 
-                if(transitions != null)
+                if (transitions != null)
                 {
                     foreach (var transition in transitions)
                     {
