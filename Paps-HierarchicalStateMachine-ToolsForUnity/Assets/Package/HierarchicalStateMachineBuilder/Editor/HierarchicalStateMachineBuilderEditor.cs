@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 {
-    /*[CustomEditor(typeof(HierarchicalStateMachineBuilder))]
+    [CustomEditor(typeof(HierarchicalStateMachineBuilder))]
     public class HierarchicalStateMachineBuilderEditor : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
@@ -13,5 +13,5 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
                 HierarchicalStateMachineBuilderEditorWindow.OpenWindow((HierarchicalStateMachineBuilder)target);
             }
         }
-    }*/
+    }
 }
