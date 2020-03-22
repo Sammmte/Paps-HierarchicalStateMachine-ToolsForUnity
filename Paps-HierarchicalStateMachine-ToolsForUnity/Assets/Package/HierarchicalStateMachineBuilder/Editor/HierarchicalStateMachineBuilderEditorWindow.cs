@@ -43,20 +43,34 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private void Initialize(HierarchicalStateMachineBuilder builder)
         {
+            LoadBackground();
+
             if(builder == null)
                 return;
 
             _builder = builder;
 
-            backgroundTexture = CreateBackgroundTexture(backgroundColor);
+            Load();
+        }
 
+        private void OnEnable()
+        {
+            LoadBackground();
+
+            if (_builder == null)
+                return;
+
+            Load();
+        }
+
+        private void Load()
+        {
             titleContent = new GUIContent("Hierarchical State Machine Builder Window");
 
             _nodes = new List<StateNode>();
             _transitions = new List<TransitionConnection>();
             _parentConnections = new List<ParentConnection>();
 
-            _gridDrawer = new BackgroundGridDrawer();
             _windowEventHandler = new WindowEventHandler(this);
             _nodeEventHandler = new StateNodeEventHandler(this);
             _transitionConnectionEventHandler = new TransitionConnectionEventHandler(this);
@@ -71,6 +85,11 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
             _builderSettingsDrawer.OnTriggerTypeChanged += OnTriggerTypeChanged;
 
             Undo.undoRedoPerformed += Reload;
+        }
+
+        private void LoadBackground()
+        {
+            _gridDrawer = new BackgroundGridDrawer();
         }
         
         private static Texture2D CreateBackgroundTexture(Color color)
@@ -182,10 +201,11 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private void OnGUI()
         {
+            DrawBackground();
+
             if (_builder == null)
                 return;
-
-            DrawBackground();
+            
             DrawParentConnections();
             DrawTransitions();
             DrawNodes();
@@ -228,6 +248,9 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
 
         private void DrawBackground()
         {
+            if(backgroundTexture == null)
+                backgroundTexture = CreateBackgroundTexture(backgroundColor);
+
             GUI.DrawTexture(new Rect(0, 0, maxSize.x, maxSize.y), backgroundTexture);
             _gridDrawer.Draw(position);
         }
@@ -609,7 +632,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             Undo.undoRedoPerformed -= Reload;
 
-            Initialize(_builder);
+            Load();
 
             EditorUtility.SetDirty(_builder);
             Repaint();
