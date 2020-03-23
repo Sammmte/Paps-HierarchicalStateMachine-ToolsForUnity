@@ -57,6 +57,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             _nodeRect = new Rect(position.x, position.y, Width, Height);
             NodeId = nodeId;
+            StateObject = stateAsset;
 
             _controlsAreaStyle = new GUIStyle();
             _controlsAreaStyle.padding = new RectOffset(ControlPaddingLeft, ControlPaddingRight, ControlPaddingTop, ControlPaddingBottom);

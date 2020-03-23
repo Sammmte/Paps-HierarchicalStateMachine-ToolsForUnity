@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _states:
   - _serializedStateId: hola
-    _stateObject: {fileID: 0}
+    _stateObject: {fileID: 11400000, guid: 7d4a73259f4f9a94586af124b72fb2ba, type: 2}
     _stateIdTypeFullName: System.String
   - _serializedStateId: chau
-    _stateObject: {fileID: 0}
+    _stateObject: {fileID: 11400000, guid: 5c9a54196cc5a134f8944d8c10e779f8, type: 2}
     _stateIdTypeFullName: System.String
   - _serializedStateId: xoxo
-    _stateObject: {fileID: 0}
+    _stateObject: {fileID: 11400000, guid: 7d4a73259f4f9a94586af124b72fb2ba, type: 2}
     _stateIdTypeFullName: System.String
   _transitions:
   - _serializedStateFrom: hola
@@ -57,5 +57,5 @@ MonoBehaviour:
   _triggerTypeFullName: System.String
   _metadata:
   - Key: PLAIN_STATE_MACHINE_BUILDER_METADATA
-    Value: '{"StateNodesMetadata":[{"_position":{"x":262.0,"y":212.0},"_serializedStateId":"hola","_stateIdTypeFullName":"System.String"},{"_position":{"x":587.0,"y":208.0},"_serializedStateId":"chau","_stateIdTypeFullName":"System.String"},{"_position":{"x":285.0,"y":509.0},"_serializedStateId":"xoxo","_stateIdTypeFullName":"System.String"}]}'
+    Value: '{"StateNodesMetadata":[{"_position":{"x":356.0,"y":175.0},"_serializedStateId":"hola","_stateIdTypeFullName":"System.String"},{"_position":{"x":673.0,"y":182.0},"_serializedStateId":"chau","_stateIdTypeFullName":"System.String"},{"_position":{"x":474.0,"y":414.0},"_serializedStateId":"xoxo","_stateIdTypeFullName":"System.String"}]}'
   _serializedInitialStateId: hola
