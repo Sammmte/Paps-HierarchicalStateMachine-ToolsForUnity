@@ -126,19 +126,19 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             var previousType = StateIdType;
 
-            if (_stateIdRepresentation == Editor.BuilderGenericType.Int)
+            if (_stateIdRepresentation == BuilderGenericType.Int)
                 StateIdType = typeof(int);
-            else if (_stateIdRepresentation == Editor.BuilderGenericType.Float)
+            else if (_stateIdRepresentation == BuilderGenericType.Float)
                 StateIdType = typeof(float);
-            else if (_stateIdRepresentation == Editor.BuilderGenericType.String)
+            else if (_stateIdRepresentation == BuilderGenericType.String)
                 StateIdType = typeof(string);
-            else if (_stateIdRepresentation == Editor.BuilderGenericType.Enum)
+            else if (_stateIdRepresentation == BuilderGenericType.Enum)
             {
                 if (string.IsNullOrEmpty(_stateIdEnumTypeFullName) == false)
                 {
                     var enumType = GetTypeOf(_stateIdEnumTypeFullName);
 
-                    if(enumType != null)
+                    if(enumType != null && enumType.IsEnum)
                     {
                         StateIdType = enumType;
                     }
@@ -155,19 +155,19 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity.Editor
         {
             var previousType = TriggerType;
 
-            if (_triggerRepresentation == Editor.BuilderGenericType.Int)
+            if (_triggerRepresentation == BuilderGenericType.Int)
                 TriggerType = typeof(int);
-            else if (_triggerRepresentation == Editor.BuilderGenericType.Float)
+            else if (_triggerRepresentation == BuilderGenericType.Float)
                 TriggerType = typeof(float);
-            else if (_triggerRepresentation == Editor.BuilderGenericType.String)
+            else if (_triggerRepresentation == BuilderGenericType.String)
                 TriggerType = typeof(string);
-            else if (_triggerRepresentation == Editor.BuilderGenericType.Enum)
+            else if (_triggerRepresentation == BuilderGenericType.Enum)
             {
                 if (string.IsNullOrEmpty(_triggerEnumTypeFullName) == false)
                 {
                     var enumType = GetTypeOf(_triggerEnumTypeFullName);
 
-                    if (enumType != null)
+                    if (enumType != null && enumType.IsEnum)
                     {
                         TriggerType = enumType;
                     }
