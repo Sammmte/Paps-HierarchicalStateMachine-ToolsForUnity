@@ -7,9 +7,12 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
     {
         [SerializeField]
         private string _debugName;
+        [SerializeField]
+        private bool _instantiateThis = true;
 
         public string DebugName => _debugName;
-        
+        public bool InstantiateThis => _instantiateThis;
+
         public void Enter()
         {
             OnEnter();

@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: TestStateAsset 1
   m_EditorClassIdentifier: 
   _debugName: Test 1
+  _instantiateThis: 1

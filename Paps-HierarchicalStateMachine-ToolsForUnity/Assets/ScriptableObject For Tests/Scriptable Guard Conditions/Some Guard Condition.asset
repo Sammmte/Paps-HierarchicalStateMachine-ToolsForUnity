@@ -12,3 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4b3adc453fbe4cfda9e3ce0a7a141d7, type: 3}
   m_Name: Some Guard Condition
   m_EditorClassIdentifier: 
+  _debugName: MyGuardCondition
+  _instantiateThis: 1

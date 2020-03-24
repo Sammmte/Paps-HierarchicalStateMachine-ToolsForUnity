@@ -419,7 +419,17 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
                     var current = _states[i];
 
                     TState stateId = (TState) current.StateId;
-                    IState stateObject = current.StateObject == null ? new EmptyState() : (IState)Instantiate(current.StateObject);
+                    IState stateObject;
+
+                    if (current.StateObject != null)
+                    {
+                        if(current.StateObject.InstantiateThis)
+                            stateObject = Instantiate(current.StateObject);
+                        else
+                            stateObject = current.StateObject;
+                    }
+                    else
+                        stateObject = new EmptyState();
 
                     stateMachine.AddState(stateId, stateObject);
 
@@ -449,7 +459,14 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
                     for (int j = 0; j < current.GuardConditions.Length; j++)
                     {
-                        stateMachine.AddGuardConditionTo(transition, ScriptableObject.Instantiate(current.GuardConditions[j]));
+                        IGuardCondition guardCondition;
+
+                        if (current.GuardConditions[j].InstantiateThis)
+                            guardCondition = Instantiate(current.GuardConditions[j]);
+                        else
+                            guardCondition = current.GuardConditions[j];
+
+                        stateMachine.AddGuardConditionTo(transition, guardCondition);
                     }
                 }
             }
