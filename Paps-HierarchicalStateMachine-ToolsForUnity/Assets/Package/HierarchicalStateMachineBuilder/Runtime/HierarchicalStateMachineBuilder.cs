@@ -419,7 +419,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
                     var current = _states[i];
 
                     TState stateId = (TState) current.StateId;
-                    IState stateObject = (current.StateObject as IState) ?? new EmptyState();
+                    IState stateObject = current.StateObject == null ? new EmptyState() : (IState)Instantiate(current.StateObject);
 
                     stateMachine.AddState(stateId, stateObject);
 
