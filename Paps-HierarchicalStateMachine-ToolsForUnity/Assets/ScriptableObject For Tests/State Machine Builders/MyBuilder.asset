@@ -20,7 +20,7 @@ MonoBehaviour:
     _stateObject: {fileID: 11400000, guid: 5c9a54196cc5a134f8944d8c10e779f8, type: 2}
     _stateIdTypeFullName: System.String
   - _serializedStateId: xoxo
-    _stateObject: {fileID: 11400000, guid: 7d4a73259f4f9a94586af124b72fb2ba, type: 2}
+    _stateObject: {fileID: 11400000, guid: 97165aad2ccd2f24caf79b31f7c58d55, type: 2}
     _stateIdTypeFullName: System.String
   _transitions:
   - _serializedStateFrom: hola

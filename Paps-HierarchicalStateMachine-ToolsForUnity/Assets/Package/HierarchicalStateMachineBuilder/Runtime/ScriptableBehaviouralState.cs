@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Paps.HierarchicalStateMachine_ToolsForUnity
 {
+    [CreateAssetMenu(menuName = "Paps/Scriptable States/Behavioural State")]
     public class ScriptableBehaviouralState : ScriptableState, IBehaviouralState
     {
         [SerializeField]
@@ -16,7 +17,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
         private bool _initialized;
 
-        protected override void OnEnter()
+        protected override sealed void OnEnter()
         {
             if(_initialized == false)
             {
@@ -30,15 +31,18 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
         private void AddInitialBehaviours()
         {
             for (int i = 0; i < behaviours.Length; i++)
+            {
+                var behaviour = behaviours[i].InstantiateThis ? Instantiate(behaviours[i]) : behaviours[i];
                 _innerBehaviouralState.AddBehaviour(behaviours[i]);
+            }
         }
 
-        protected override void OnUpdate()
+        protected override sealed void OnUpdate()
         {
             _innerBehaviouralState.Update();
         }
 
-        protected override void OnExit()
+        protected override sealed void OnExit()
         {
             _innerBehaviouralState.Exit();
         }
