@@ -404,6 +404,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             var stateMachine = new HierarchicalStateMachine<TState, TTrigger>();
 
             AddStates(stateMachine);
+            BuildBehaviouralStates(stateMachine);
             AddTransitionsAndGuardConditions(stateMachine);
             SetParentConnections(stateMachine);
 
@@ -423,7 +424,7 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
                     if (current.StateObject != null)
                     {
-                        if(current.StateObject.InstantiateThis)
+                        if (current.StateObject.InstantiateThis)
                             stateObject = Instantiate(current.StateObject);
                         else
                             stateObject = current.StateObject;
@@ -433,11 +434,40 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
                     stateMachine.AddState(stateId, stateObject);
 
-                    if (stateObject is IStateEventHandler eventHandler)
-                        stateMachine.SubscribeEventHandlerTo(stateId, eventHandler);
+                    stateMachine.SubscribeEventHandlerTo(stateId, stateObject as IStateEventHandler);
                 }
 
                 stateMachine.InitialState = (TState) InitialStateId;
+            }
+        }
+
+        private void BuildBehaviouralStates<TState, TTrigger>(HierarchicalStateMachine<TState, TTrigger> stateMachine)
+        {
+            var states = stateMachine.GetStates();
+
+            if(states != null)
+            {
+                for(int i = 0; i < states.Length; i++)
+                {
+                    var stateObject = stateMachine.GetStateById(states[i]);
+
+                    if (stateObject is ScriptableBehaviouralState behaviouralState)
+                    {
+                        var serializedBehaviours = behaviouralState.GetSerializedBehaviours();
+
+                        foreach (ScriptableStateBehaviour behaviour in serializedBehaviours)
+                        {
+                            var currentBehaviour = behaviour;
+
+                            if (currentBehaviour.InstantiateThis)
+                                currentBehaviour = Instantiate(behaviour);
+
+                            behaviouralState.AddBehaviour(currentBehaviour);
+
+                            stateMachine.SubscribeEventHandlerTo(states[i], currentBehaviour);
+                        }
+                    }
+                }
             }
         }
 

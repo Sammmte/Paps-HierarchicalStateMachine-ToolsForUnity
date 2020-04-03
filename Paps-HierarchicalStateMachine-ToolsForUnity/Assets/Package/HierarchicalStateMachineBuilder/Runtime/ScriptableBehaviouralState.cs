@@ -1,4 +1,6 @@
-﻿using Paps.StateMachines.Extensions.BehaviouralStates;
+﻿using System.Linq;
+using Paps.StateMachines.Extensions.BehaviouralStates;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,30 +13,19 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
         [SerializeField]
         private ScriptableStateBehaviour[] behaviours;
 
+        [NonSerialized]
         private BehaviouralState _innerBehaviouralState = new BehaviouralState();
 
         public int BehaviourCount => _innerBehaviouralState.BehaviourCount;
 
-        private bool _initialized;
+        public ScriptableStateBehaviour[] GetSerializedBehaviours()
+        {
+            return behaviours.ToArray();
+        }
 
         protected override sealed void OnEnter()
         {
-            if(_initialized == false)
-            {
-                AddInitialBehaviours();
-                _initialized = true;
-            }
-
             _innerBehaviouralState.Enter();
-        }
-
-        private void AddInitialBehaviours()
-        {
-            for (int i = 0; i < behaviours.Length; i++)
-            {
-                var behaviour = behaviours[i].InstantiateThis ? Instantiate(behaviours[i]) : behaviours[i];
-                _innerBehaviouralState.AddBehaviour(behaviours[i]);
-            }
         }
 
         protected override sealed void OnUpdate()
