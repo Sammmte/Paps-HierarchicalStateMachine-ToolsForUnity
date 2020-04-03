@@ -1,8 +1,8 @@
 {
     "name": "Paps.HierarchicalStateMachine_ToolsForUnity.Editor",
     "references": [
-        "GUID:178f65fed8970cb4b88211a864d0308f",
-        "GUID:88f57ab7a80924041acebaf7019b2b30"
+        "GUID:88f57ab7a80924041acebaf7019b2b30",
+        "GUID:7152f99406f66634fa3d3005b71b5cb2"
     ],
     "includePlatforms": [
         "Editor"

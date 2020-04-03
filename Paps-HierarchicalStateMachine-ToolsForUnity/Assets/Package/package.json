@@ -1,11 +1,11 @@
 {
   "name": "paps.hierarchical-state-machine.tools-for-unity",
-  "version": "0.0.17-unity",
+  "version": "0.0.18-unity",
   "displayName": "Paps Hierarchical State Machine Tools For Unity",
   "unity": "2019.3",
   "description": "Tools for easily build hierarchical state machines in Unity 3d",
   "dependencies": {
-    "paps.hierarchical-state-machine": "0.0.8-unity"
+    "paps.hierarchical-state-machine": "0.0.9-unity"
   },
   "keywords": [
     "c#",
