@@ -434,7 +434,8 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
 
                     stateMachine.AddState(stateId, stateObject);
 
-                    stateMachine.SubscribeEventHandlerTo(stateId, stateObject as IStateEventHandler);
+                    if(stateObject is IStateEventHandler eventHandler)
+                        stateMachine.SubscribeEventHandlerTo(stateId, eventHandler);
                 }
 
                 stateMachine.InitialState = (TState) InitialStateId;
