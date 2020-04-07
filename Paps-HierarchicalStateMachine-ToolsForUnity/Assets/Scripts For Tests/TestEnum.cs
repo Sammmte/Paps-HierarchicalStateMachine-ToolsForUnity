@@ -2,9 +2,9 @@
 {
     public enum TestEnum
     {
-        Value1,
+        RenameValue1,
         Value2,
-        Value3
+        SomeOtherWeirdName
     }
 
     public class ClassWithInnerEnum

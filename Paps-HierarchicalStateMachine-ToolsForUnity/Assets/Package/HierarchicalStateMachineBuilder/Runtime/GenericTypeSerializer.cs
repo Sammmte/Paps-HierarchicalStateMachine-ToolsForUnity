@@ -6,9 +6,15 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
     {
         public static string Serialize(object value)
         {
-            if (value is int || value is float || value is string || value.GetType().IsEnum)
+            if (value is int || value is float || value is string)
             {
                 return value.ToString();
+            }
+            else if(value.GetType().IsEnum)
+            {
+                var rawValue = Convert.ChangeType(value, Enum.GetUnderlyingType(value.GetType()));
+
+                return rawValue.ToString();
             }
             
             throw new ArgumentException("argument serialization not supported");
@@ -30,7 +36,12 @@ namespace Paps.HierarchicalStateMachine_ToolsForUnity
             }
             else if (type.IsEnum)
             {
-                return Enum.Parse(type, serialized);
+                var enumValue = Enum.Parse(type, serialized);
+
+                if (Enum.IsDefined(type, enumValue))
+                    return enumValue;
+                else
+                    return 0;
             }
             
             throw new ArgumentException("argument serialization not supported");

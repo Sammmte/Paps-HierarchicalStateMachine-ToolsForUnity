@@ -13,52 +13,39 @@ MonoBehaviour:
   m_Name: MyBuilder
   m_EditorClassIdentifier: 
   _states:
-  - _serializedStateId: hola
+  - _serializedStateId: 0
     _stateObject: {fileID: 11400000, guid: 7d4a73259f4f9a94586af124b72fb2ba, type: 2}
-    _stateIdTypeFullName: System.String
-  - _serializedStateId: chau
+    _stateIdTypeFullName: SomeNamespace.TestEnum
+  - _serializedStateId: 1
     _stateObject: {fileID: 11400000, guid: 5c9a54196cc5a134f8944d8c10e779f8, type: 2}
-    _stateIdTypeFullName: System.String
-  - _serializedStateId: xoxo
+    _stateIdTypeFullName: SomeNamespace.TestEnum
+  - _serializedStateId: 2
     _stateObject: {fileID: 11400000, guid: 97165aad2ccd2f24caf79b31f7c58d55, type: 2}
-    _stateIdTypeFullName: System.String
-  - _serializedStateId: lala
-    _stateObject: {fileID: 0}
-    _stateIdTypeFullName: System.String
+    _stateIdTypeFullName: SomeNamespace.TestEnum
   _transitions:
-  - _serializedStateFrom: hola
-    _serializedTrigger: trigger1
-    _serializedStateTo: chau
-    _stateIdTypeFullName: System.String
-    _triggerTypeFullName: System.String
+  - _serializedStateFrom: 0
+    _serializedTrigger: 0
+    _serializedStateTo: 1
+    _stateIdTypeFullName: SomeNamespace.TestEnum
+    _triggerTypeFullName: SomeNamespace.TestEnum
     _guardConditions:
     - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
     - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
-  - _serializedStateFrom: hola
-    _serializedTrigger: trigger2
-    _serializedStateTo: chau
-    _stateIdTypeFullName: System.String
-    _triggerTypeFullName: System.String
-    _guardConditions:
-    - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
-    - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
-    - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
-    - {fileID: 11400000, guid: 8fcafc5c77dcb4473a95e6a39f119df0, type: 2}
-  - _serializedStateFrom: xoxo
-    _serializedTrigger: keke
-    _serializedStateTo: chau
-    _stateIdTypeFullName: System.String
-    _triggerTypeFullName: System.String
+  - _serializedStateFrom: 2
+    _serializedTrigger: 1
+    _serializedStateTo: 1
+    _stateIdTypeFullName: SomeNamespace.TestEnum
+    _triggerTypeFullName: SomeNamespace.TestEnum
     _guardConditions: []
   _parentConnections:
-  - _serializedParentStateId: hola
-    _serializedInitialChildId: xoxo
+  - _serializedParentStateId: 0
+    _serializedInitialChildId: 2
     _serializedChildStateIds:
-    - xoxo
-    _stateIdTypeFullName: System.String
-  _stateIdTypeFullName: System.String
-  _triggerTypeFullName: System.String
+    - 2
+    _stateIdTypeFullName: SomeNamespace.TestEnum
+  _stateIdTypeFullName: SomeNamespace.TestEnum
+  _triggerTypeFullName: SomeNamespace.TestEnum
   _metadata:
   - Key: PLAIN_STATE_MACHINE_BUILDER_METADATA
-    Value: '{"StateNodesMetadata":[{"_position":{"x":356.0,"y":175.0},"_serializedStateId":"hola","_stateIdTypeFullName":"System.String"},{"_position":{"x":673.0,"y":182.0},"_serializedStateId":"chau","_stateIdTypeFullName":"System.String"},{"_position":{"x":474.0,"y":414.0},"_serializedStateId":"xoxo","_stateIdTypeFullName":"System.String"},{"_position":{"x":184.0,"y":436.0},"_serializedStateId":"lala","_stateIdTypeFullName":"System.String"}]}'
-  _serializedInitialStateId: hola
+    Value: '{"StateNodesMetadata":[{"_position":{"x":356.0,"y":175.0},"_serializedStateId":"0","_stateIdTypeFullName":"SomeNamespace.TestEnum"},{"_position":{"x":672.0,"y":175.0},"_serializedStateId":"1","_stateIdTypeFullName":"SomeNamespace.TestEnum"},{"_position":{"x":511.0,"y":404.0},"_serializedStateId":"2","_stateIdTypeFullName":"SomeNamespace.TestEnum"}]}'
+  _serializedInitialStateId: 0
